@@ -3,14 +3,18 @@ import os
 import glob
 import cv2
 
-def main_function(frame_interval):
+def main_function(user_os, frame_interval):
 
     video_path = "video/*.mp4"
 
     for bb, file_name in enumerate(glob.glob(video_path)):
 
         name_wo_format = file_name.split('.')[0]
-        name_wo_path = name_wo_format.split('/')[-1]
+
+        if user_os == "windows":
+            name_wo_path = name_wo_format.split('\\')[-1]
+        else:
+            name_wo_path = name_wo_format.split('/')[-1]
 
         cap = cv2.VideoCapture(file_name)
         frame_save_idx = 0
@@ -55,7 +59,8 @@ def main_function(frame_interval):
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--frame", default=10)
+    parser.add_argument("--os", required=True)
+    parser.add_argument("--frame", default=10)
     args = parser.parse_args()
 
-    main_function(args.frame)
+    main_function(args.os, args.frame)
