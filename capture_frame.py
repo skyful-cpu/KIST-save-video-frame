@@ -5,7 +5,7 @@ import numpy as np
 
 def main_function(video_name):
 
-    video_name = "20220926_132122.mp4"
+    # video_name = "20220926_132122.mp4"
     cap = cv2.VideoCapture(f"video/{video_name}")
     frame_idx = 0
 
