@@ -1,50 +1,61 @@
 import argparse
 import os
+import glob
 import cv2
-import numpy as np
 
-def main_function(video_name):
+def main_function(frame_interval):
 
-    # video_name = "20220926_132122.mp4"
-    cap = cv2.VideoCapture(f"video/{video_name}")
-    frame_idx = 0
+    video_path = "video/*.mp4"
 
-    while cap.isOpened():
+    for bb, file_name in enumerate(glob.glob(video_path)):
 
-        success, frame = cap.read()
+        name_wo_format = file_name.split('.')[0]
+        name_wo_path = name_wo_format.split('/')[-1]
 
-        try:
-            cv2.imshow(video_name, frame)
+        cap = cv2.VideoCapture(file_name)
+        frame_save_idx = 0
+        frame_passed = 0
 
-        except Exception as e:
-            pass
+        while cap.isOpened():
 
-        try:
-            if not os.path.isdir(f"frame/{video_name.split('.')[0]}"):
-                os.mkdir(f"frame/{video_name.split('.')[0]}")
-            else:
+            success, frame = cap.read()
+
+            try:
+                cv2.imshow(file_name, frame)
+
+            except Exception as e:
                 pass
 
-            cv2.imwrite(f"frame/{video_name.split('.')[0]}/{video_name.split('.')[0]}_{frame_idx}.jpg", frame)
-            print(f"saved frame [{frame_idx}]...")
-            frame_idx += 1
+            try:
+                if not os.path.isdir(f"frame/{name_wo_path}"):
+                    os.mkdir(f"frame/{name_wo_path}")
+                else:
+                    pass
 
-        except Exception as e:
-            print(e)
-            break
+                if frame_passed > int(frame_interval):
+                    cv2.imwrite(f"frame/{name_wo_path}/{name_wo_path}_{frame_save_idx}.jpg", frame)
+                    print(f"saved frame [{name_wo_path}_{frame_save_idx}.jpg]...")
+                    frame_passed = 0
+                    frame_save_idx += 1
 
-        if cv2.waitKey(1) == 27:
-            print("interrupted by user")
-            break
-    
-    print("saved all frames")
-    cv2.destroyAllWindows()
-    cap.release()
+            except Exception as e:
+                print(e)
+                break
+
+            if cv2.waitKey(1) == 27:
+                print("interrupted by user")
+                break
+
+            frame_passed += 1
+        
+        print("saved all frames")
+        cv2.destroyAllWindows()
+        cap.release()
 
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--name", required=True)
+    parser.add_argument("-f", "--frame", default=10)
     args = parser.parse_args()
 
-    main_function(video_name=args.name)
+    main_function(args.frame)
